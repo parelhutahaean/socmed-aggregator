@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>Socmed Aggregator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <style>
+    .status {
+      color: #666666;
+    }
+    .by {
+      color: ##2F50FB;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="jumbotron text-center">
+      <h1>Socmed Aggregator</h1>
+    </div>
+  </div>
+
+  <div class="container text-center">
+    <input class="search input-md" type="text" placeholder="Enter keywords...">
+    <button class="btn-sm btn-primary search-btn" type="submit">Search</button>
+    <br><br>
+      <div class="container">
+        <button class="btn-sm btn-info recent-btn" type="submit">Recent Tweets</button>
+      </div>
+  </div>
+  <br>
+  <div class="container timeline">
+    <div class="panel panel-default">
+      <!-- Default panel contents -->
+      <div class="panel-heading"><b>Timeline</b></div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>User</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="timeline">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    $('.search-btn').click(function() {
+      $('#timeline').empty();
+      var searchQuery = $('.search').val();
+      axios.post(
+        `http://localhost:5000/search`,
+        {
+          keyword: searchQuery
+        }
+      )
+      .then((res) => {
+        console.log("----",res.data.length);
+        for (var i = 0; i < res.data.length; i++) {
+          $('#timeline').append(`<tr><td>${i+1}</td><td>${res.data[i].user.name}</td><td>${res.data[i].text}</td></tr>`);
+        }
+      });
+    });
+
+    $('.refresh-btn').click(function() {
+      $('#timeline').empty();
+    })
+
+    $('.recent-btn').click(function() {
+      $('#timeline').empty();
+      axios.get(`http://localhost:5000/timeline`)
+      .then((res) => {
+        console.log(JSON.stringify(res.data));
+        for (var i = 0; i < res.data.length; i++) {
+          $('#timeline').append(`<tr><td>${i+1}</td><td>${res.data[i].user.name}</td><td>${res.data[i].text}</td></tr>`);
+        }
+      });
+    })
+  </script>
+
+</body>
+</html>
